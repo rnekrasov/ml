@@ -371,8 +371,9 @@ news <- rbind(
 data_news <-
   merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
 data_news <- rbind(news[1:5], usdrub)
+news$Date<-as.POSIXct(news$Date, format="%d.%m.%Y")
+data_usdrub$Date<-as.POSIXct(data_usdrub$Date, format="%Y-%m-%d")
 data_news <- inner_join(news[1:5], data_usdrub)
-news$Date<-as.POSIXct(news$Date, format="%Y-%m-%d")
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
