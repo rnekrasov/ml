@@ -377,6 +377,9 @@ news$Date <- as.POSIXct(news$Date, format = "%d.%m.%Y")
 data_usdrub$Date <- as.POSIXct(data_usdrub$Date, format = "%Y-%m-%d")
 data_news <- inner_join(news[1:5], data_usdrub)
 
+#filter news by ticker
+data_news <- filter(data_news,data_news$Ticker=="RUB=")
+
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
 usdrub_nov_17 <- x["2017-11-01/2017-11-31"]
@@ -398,5 +401,20 @@ e <- stemDocument(d)
 #tokenizer for machine learning
 f <- MC_tokenizer(e)
 
-#r-sentiment for each news
-sent <- calculate_total_presence_sentiment(e)
+#r-sentiment for each news (days)
+e<-filter(data_news,data_news$Date=="2017-09-27")
+e1<-filter(data_news,data_news$Date=="2017-09-29")
+e2<-filter(data_news,data_news$Date=="2017-11-16")
+g<-e$News
+g1<-e1$News
+g2<-e2$News
+sent <- calculate_total_presence_sentiment(g)
+sent1 <- calculate_total_presence_sentiment(g1)
+sent2 <- calculate_total_presence_sentiment(g2)
+news_frame<-data.frame(t(sent[2,]),e$Date[1],e$USDRUB_TOM[1])
+colnames(news_frame)<-c("X1","X2","X3","X4","X5","X6","Date","Price")
+news_frame1<-data.frame(t(sent1[2,]),e1$Date[1],e1$USDRUB_TOM[1])
+colnames(news_frame1)<-c("X1","X2","X3","X4","X5","X6","Date","Price")
+news_frame2<-data.frame(t(sent2[2,]),e2$Date[1],e2$USDRUB_TOM[1])
+colnames(news_frame2)<-c("X1","X2","X3","X4","X5","X6","Date","Price")
+news_frame_all<-rbind(news_frame,news_frame1,news_frame2)
