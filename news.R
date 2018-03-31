@@ -281,7 +281,8 @@ news_sep_17 <- read.csv(
   file = "c:/QRG/R/reuters/news_sep_2017.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_sep_17$Date, "%d.%m.%Y")
 news_sep_17_xts <- xts(news_sep_17[2:5], x1.Date)
@@ -290,7 +291,8 @@ news_oct_17 <- read.csv(
   file = "c:/QRG/R/reuters/news_oct_2017.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_oct_17$Date, "%d.%m.%Y")
 news_oct_17_xts <- xts(news_oct_17[2:5], x1.Date)
@@ -299,7 +301,8 @@ news_nov_17 <- read.csv(
   file = "c:/QRG/R/reuters/news_nov_2017.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_nov_17$Date, "%d.%m.%Y")
 news_nov_17_xts <- xts(news_nov_17[2:5], x1.Date)
@@ -308,7 +311,8 @@ news_dec_17 <- read.csv(
   file = "c:/QRG/R/reuters/news_dec_2017.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_dec_17$Date, "%d.%m.%Y")
 news_dec_17_xts <- xts(news_dec_17[2:5], x1.Date)
@@ -317,7 +321,8 @@ news_jan_18 <- read.csv(
   file = "c:/QRG/R/reuters/news_jan_2018.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_jan_18$Date, "%d.%m.%Y")
 news_jan_18_xts <- xts(news_jan_18[2:5], x1.Date)
@@ -326,7 +331,8 @@ news_feb_18 <- read.csv(
   file = "c:/QRG/R/reuters/news_feb_2018.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_feb_18$Date, "%d.%m.%Y")
 news_feb_18_xts <- xts(news_feb_18[2:5], x1.Date)
@@ -335,7 +341,8 @@ news_mar_18 <- read.csv(
   file = "c:/QRG/R/reuters/news_mar_2018.csv",
   header = TRUE,
   sep = ";",
-  dec = "."
+  dec = ".",
+  stringsAsFactors=FALSE
 )
 x1.Date <- as.Date(news_mar_18$Date, "%d.%m.%Y")
 news_mar_18_xts <- xts(news_mar_18[2:5], x1.Date)
@@ -365,9 +372,7 @@ data_news <-
   merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
 data_news <- rbind(news[1:5], usdrub)
 data_news <- inner_join(news[1:5], data_usdrub)
-news<-as.Date(news[1],"%Y-%m-%d")
-
-
+news$Date<-as.POSIXct(news$Date, format="%Y-%m-%d")
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
