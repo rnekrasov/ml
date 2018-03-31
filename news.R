@@ -4,6 +4,8 @@ library(extremevalues)
 library(h2o)
 library(lmtest)
 library(dplyr)
+library(RSentiment)
+library(tm)
 
 #API alphavantager
 av_api_key("YBKRXTMZ1LYJPGCW")
@@ -371,8 +373,8 @@ news <- rbind(
 data_news <-
   merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
 data_news <- rbind(news[1:5], usdrub)
-news$Date<-as.POSIXct(news$Date, format="%d.%m.%Y")
-data_usdrub$Date<-as.POSIXct(data_usdrub$Date, format="%Y-%m-%d")
+news$Date <- as.POSIXct(news$Date, format = "%d.%m.%Y")
+data_usdrub$Date <- as.POSIXct(data_usdrub$Date, format = "%Y-%m-%d")
 data_news <- inner_join(news[1:5], data_usdrub)
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
@@ -382,3 +384,19 @@ usdrub_dec_17 <- x["2017-12-01/2017-12-31"]
 usdrub_jan_18 <- x["2018-01-01/2018-01-31"]
 usdrub_feb_18 <- x["2018-02-01/2018-02-28"]
 usdrub_mar_18 <- x["2018-03-01/2018-03-31"]
+
+#sentiment analisys/lexicon-approach
+#pre-processing text-corpus
+#concatenate for all dataset
+#a<-concatenate(data_news$News)
+b <- removeNumbers(data_news$News)
+c <- removePunctuation(b)
+d <- removeWords(c, stopwords("english"))
+#stemming in a text document using Porter`s algorithm
+e <- stemDocument(d)
+
+#tokenizer for machine learning
+f <- MC_tokenizer(e)
+
+#r-sentiment for each news
+sent <- calculate_total_presence_sentiment(e)
