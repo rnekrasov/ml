@@ -371,14 +371,16 @@ news <- rbind(
 
 #merge datasets
 #data_news <-
-  merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
+#  merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
 #data_news <- rbind(news[1:5], usdrub)
 news$Date <- as.Date(news$Date, format = "%d.%m.%Y")
 data_usdrub$Date <- as.Date(data_usdrub$Date, format = "%Y-%m-%d")
 data_news <- inner_join(news[1:5], data_usdrub)
 
 #filter news by ticker
-data_news <- filter(data_news,data_news$Ticker=="RUB=")
+data_news <-
+  filter(data_news,
+         data_news$Ticker == "RUBUTSTN=MCX"|data_news$Ticker == "RUB=")
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
@@ -389,17 +391,9 @@ usdrub_feb_18 <- x["2018-02-01/2018-02-28"]
 usdrub_mar_18 <- x["2018-03-01/2018-03-31"]
 
 #sentiment analisys/lexicon-approach
-#pre-processing text-corpus
-#concatenate for all dataset
-#a<-concatenate(data_news$News)
-b <- removeNumbers(data_news$News)
-c <- removePunctuation(b)
-d <- removeWords(c, stopwords("english"))
-#stemming in a text document using Porter`s algorithm
-e <- stemDocument(d)
 
 #tokenizer for machine learning
-f <- MC_tokenizer(e)
+#f <- MC_tokenizer(e)
 
 #r-sentiment for each days
 start <- as.Date("2017-09-01",format="%Y-%m-%d")
@@ -409,6 +403,12 @@ theDate <- start
 
 g <- filter(data_news, data_news$Date == "2017-09-01")
 h <-  g$News
+#pre-processing text-corpus
+h <- removeNumbers(h)
+h <- removePunctuation(h)
+h <- removeWords(h, stopwords("english"))
+#stemming in a text document using Porter`s algorithm
+h <- stemDocument(h)
 sent <- calculate_total_presence_sentiment(h)
 news_frame <- data.frame(t(sent[2, ]), g$Date[1], g$USDRUB_TOM[1])
 colnames(news_frame) <-
@@ -419,6 +419,13 @@ while (theDate <= end)
 {
   g <- filter(data_news, data_news$Date == theDate)
   h <-  g$News
+  #pre-processing text-corpus
+  h <- removeNumbers(h)
+  h <- removePunctuation(h)
+  h <- removeWords(h, stopwords("english"))
+  #stemming in a text document using Porter`s algorithm
+  h <- stemDocument(h)
+  
   if (nrow(g) != 0)
   {
     sent <- calculate_total_presence_sentiment(h)
