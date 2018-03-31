@@ -367,6 +367,8 @@ data_news <- rbind(news[1:5], usdrub)
 data_news <- inner_join(news[1:5], data_usdrub)
 news<-as.Date(news[1],"%Y-%m-%d")
 
+
+
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
 usdrub_nov_17 <- x["2017-11-01/2017-11-31"]
