@@ -369,6 +369,60 @@ news <- rbind(
   news_mar_18
 )
 
+#news classification (usdrub - yes/no)
+STOP_WORDS = c("ax","i","you","edu","s","t","m","subject","can","lines","re","what",
+               "there","all","we","one","the","a","an","of","or","in","for","by","on",
+               "but","is","in","a","not","with","as","was","if","they","are","this","and","it","have",
+               "from","at","my","be","by","not","that","to","from","com","org","like","likes","so")
+
+data2 <- read.csv(
+  file = "c:/QRG/R/reuters/news_train.csv",
+  header = TRUE,
+  sep = ";",
+  dec = ".",
+  stringsAsFactors = FALSE
+)
+
+pred.hex <- as.h2o(news$News)
+train.hex <- as.h2o(data2)
+data2.news <- as.h2o(data2$News)
+words <- h2o.tokenize(as.character(data2.news), "\\\\W+")
+tokenized.lower <- h2o.tolower(words)
+# remove short words (less than 2 characters)
+tokenized.lengths <- h2o.nchar(tokenized.lower)
+tokenized.filtered <-
+  tokenized.lower[is.na(tokenized.lengths) ||
+                    tokenized.lengths >= 2, ]
+# remove words that contain numbers
+tokenized.words <-
+  tokenized.filtered[h2o.grep("[0-9]",
+                              tokenized.filtered,
+                              invert = TRUE,
+                              output.logical = TRUE), ]
+
+# remove stop words
+words <-
+  tokenized.words[is.na(tokenized.words) ||
+                    (!tokenized.words %in% STOP_WORDS), ]
+
+model.word2vec <-
+  h2o.word2vec(words, sent_sample_rate = 0, epochs = 10)
+vecs <-
+  h2o.transform(model.word2vec, words, aggregate_method = "AVERAGE")
+valid <- !is.na(vecs$C1)
+data <-
+  h2o.cbind(train.hex[valid, "Class"], vecs[valid, ])
+data.split <- h2o.splitFrame(data, ratios = 0.8)
+gbm.model <- h2o.gbm(
+  x = names(vecs),
+  y = "Class",
+  training_frame = data.split[[1]],
+  validation_frame = data.split[[2]]
+)
+
+pred_gbm <- h2o.predict(gbm.model, pred.hex)
+pred_gbm
+
 #merge datasets
 #data_news <-
 #  merge(news[1:5], usdrub["2017-09-01/2017-09-30"], join = "inner")
@@ -379,8 +433,13 @@ data_news <- inner_join(news[1:5], data_usdrub)
 
 #filter news by ticker
 data_news <-
-  filter(data_news,
-         data_news$Ticker == "RUBUTSTN=MCX"|data_news$Ticker == "RUB=")
+  filter(
+    data_news,
+    data_news$Ticker == "RUBUTSTN=MCX"|
+      data_news$Ticker == "RUB="|
+      data_news$Ticker == "OFCB.MM"|
+      data_news$Ticker == "RUBUTSTN=MCX"
+      )
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
