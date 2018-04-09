@@ -383,7 +383,6 @@ data2 <- read.csv(
   stringsAsFactors = FALSE
 )
 
-pred.hex <- as.h2o(news$News)
 train.hex <- as.h2o(data2)
 data2.news <- as.h2o(data2$News)
 words <- h2o.tokenize(as.character(data2.news), "\\\\W+")
@@ -404,15 +403,18 @@ tokenized.words <-
 words <-
   tokenized.words[is.na(tokenized.words) ||
                     (!tokenized.words %in% STOP_WORDS), ]
-
+#word2vec
 model.word2vec <-
   h2o.word2vec(words, sent_sample_rate = 0, epochs = 10)
 vecs <-
   h2o.transform(model.word2vec, words, aggregate_method = "AVERAGE")
 valid <- !is.na(vecs$C1)
+
+#GBM
 data <-
-  h2o.cbind(train.hex[valid, "Class"], vecs[valid, ])
-data.split <- h2o.splitFrame(data, ratios = 0.8)
+  h2o.cbind(as.factor(train.hex[valid, "Class"]), vecs[valid, ])
+
+data.split <- h2o.splitFrame(data, ratios = 0.95)
 gbm.model <- h2o.gbm(
   x = names(vecs),
   y = "Class",
@@ -420,8 +422,39 @@ gbm.model <- h2o.gbm(
   validation_frame = data.split[[2]]
 )
 
-pred_gbm <- h2o.predict(gbm.model, pred.hex)
+#prediction! 
+pred.hex <- as.h2o(news)
+words <- h2o.tokenize(as.character(pred.hex), "\\\\W+")
+tokenized.lower <- h2o.tolower(words)
+tokenized.lengths <- h2o.nchar(tokenized.lower)
+tokenized.filtered <-
+  tokenized.lower[is.na(tokenized.lengths) ||
+                    tokenized.lengths >= 2, ]
+tokenized.words <-
+  tokenized.filtered[h2o.grep("[0-9]",
+                              tokenized.filtered,
+                              invert = TRUE,
+                              output.logical = TRUE), ]
+words <-
+  tokenized.words[is.na(tokenized.words) ||
+                    (!tokenized.words %in% STOP_WORDS), ]
+model.word2vec <-
+  h2o.word2vec(words, sent_sample_rate = 0, epochs = 10)
+vecs <-
+  h2o.transform(model.word2vec, words, aggregate_method = "AVERAGE")
+valid <- !is.na(vecs$C1)
+
+data_new <-vecs[valid, ]
+data_new2 <- vecs
+
+#forecast for news (for dollars and others)
+pred_gbm <- h2o.predict(gbm.model, data_new2)
 pred_gbm
+
+news<-pred.hex[pred_gbm$predict=="yes",]
+
+#transformation h2o.frame--->data.frame
+news<-as.data.frame(news)
 
 #merge datasets
 #data_news <-
