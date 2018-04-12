@@ -16,13 +16,6 @@ usdrub_intraday <-
     interval = "60min",
     outputsize = "full"
   )
-usdrub_daily <-
-  av_get(symbol = "USDRUB",
-         av_fun = "TIME_SERIES_DAILY",
-         outputsize = "full")
-usdrub_forex <- av_get(av_fun = "CURRENCY_EXCHANGE_RATE",
-                       from_currency = "USD",
-                       to_currency = "JPY")
 plot(usdrub_intraday$close, type = "l")
 
 #read price
@@ -46,18 +39,18 @@ x <- na.omit(x)
 data_usdrub$USDRUB_TOM <- ifelse(data_usdrub$USDRUB_TOM > 0,
                                  data_usdrub$USDRUB_TOM,
                                  NA)
-x<-na.omit(data_usdrub)
+x <- na.omit(data_usdrub)
 x.Date <- as.Date(x$Date)
 x <- zoo(x$USDRUB_TOM, x.Date)
 usdrub <- as.xts(x)
 plot(usdrub)
 
 #subsets
-usdrub1 <- x["2008-01-01/2009-03-01"]
-usdrub2 <- x["2009-03-01/2012-06-30"]
-usdrub3 <- x["2012-07-01/2014-10-31"]
-usdrub4 <- x["2014-11-01/2016-01-31"]
-usdrub5 <- x["2016-02-01/2018-03-25"]
+usdrub1 <- usdrub["2008-01-01/2009-03-01"]
+usdrub2 <- usdrub["2009-03-01/2012-06-30"]
+usdrub3 <- usdrub["2012-07-01/2014-10-31"]
+usdrub4 <- usdrub["2014-11-01/2016-01-31"]
+usdrub5 <- usdrub["2016-02-01/2018-03-25"]
 
 #descriptive statistics
 summary(usdrub1)
@@ -102,7 +95,7 @@ ret4 <- as.numeric(na.omit(diff(log(usdrub4))))
 ret5 <- as.numeric(na.omit(diff(usdrub5)))
 data <- data.frame(ret1[31:length(ret1)],
                    ret1_lag5[26:length(ret1_lag5)], ret1_lag30)
-colnames(data)<-c("lag0", "lag5", "lag30")
+colnames(data) <- c("lag0", "lag5", "lag30")
 model.hex <- as.h2o(data)
 cluster <- h2o.kmeans(
   training_frame = model.hex,
@@ -187,7 +180,7 @@ regr <-
     regr$XTEXVA01RUM667S
   )
 #correlation matrix
-regr_cor<-regr[2:length(regr)]
+regr_cor <- regr[2:length(regr)]
 cor(regr_cor)
 x1.Date <- as.Date(regr$regr.DATE)
 regr <- xts(regr[2:length(regr)], x1.Date)
@@ -213,12 +206,12 @@ model.hex <- as.h2o(data)
 model2.hex <- as.h2o(regr_cor)
 r <- h2o.runif(model.hex)
 r2 <- h2o.runif(model2.hex)
-data_train.hex <- model.hex[r < 0.6,]
-data_train2.hex <- model2.hex[r2 < 0.6,]
-data_valid.hex <- model.hex[(r >= 0.6) & (r < 0.9),]
-data_valid2.hex <- model2.hex[(r2 >= 0.6) & (r2 < 0.9),]
-data_test.hex <- model.hex[r >= 0.9,]
-data_test2.hex <- model.hex[r2 >= 0.9,]
+data_train.hex <- model.hex[r < 0.6, ]
+data_train2.hex <- model2.hex[r2 < 0.6, ]
+data_valid.hex <- model.hex[(r >= 0.6) & (r < 0.9), ]
+data_valid2.hex <- model2.hex[(r2 >= 0.6) & (r2 < 0.9), ]
+data_test.hex <- model.hex[r >= 0.9, ]
+data_test2.hex <- model2.hex[r2 >= 0.9, ]
 
 #GBM
 model.gbm <- h2o.gbm(
@@ -273,7 +266,7 @@ x <- na.omit(x)
 data_usdrub$USDRUB_TOM <- ifelse(data_usdrub$USDRUB_TOM > 0,
                                  data_usdrub$USDRUB_TOM,
                                  NA)
-x<-na.omit(data_usdrub)
+x <- na.omit(data_usdrub)
 x.Date <- as.Date(x$Date)
 x <- zoo(x$USDRUB_TOM, x.Date)
 usdrub <- as.xts(x)
@@ -284,7 +277,7 @@ news_sep_17 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_sep_17$Date, "%d.%m.%Y")
 news_sep_17_xts <- xts(news_sep_17[2:5], x1.Date)
@@ -294,7 +287,7 @@ news_oct_17 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_oct_17$Date, "%d.%m.%Y")
 news_oct_17_xts <- xts(news_oct_17[2:5], x1.Date)
@@ -304,7 +297,7 @@ news_nov_17 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_nov_17$Date, "%d.%m.%Y")
 news_nov_17_xts <- xts(news_nov_17[2:5], x1.Date)
@@ -314,7 +307,7 @@ news_dec_17 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_dec_17$Date, "%d.%m.%Y")
 news_dec_17_xts <- xts(news_dec_17[2:5], x1.Date)
@@ -324,7 +317,7 @@ news_jan_18 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_jan_18$Date, "%d.%m.%Y")
 news_jan_18_xts <- xts(news_jan_18[2:5], x1.Date)
@@ -334,7 +327,7 @@ news_feb_18 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_feb_18$Date, "%d.%m.%Y")
 news_feb_18_xts <- xts(news_feb_18[2:5], x1.Date)
@@ -344,7 +337,7 @@ news_mar_18 <- read.csv(
   header = TRUE,
   sep = ";",
   dec = ".",
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 x1.Date <- as.Date(news_mar_18$Date, "%d.%m.%Y")
 news_mar_18_xts <- xts(news_mar_18[2:5], x1.Date)
@@ -370,10 +363,62 @@ news <- rbind(
 )
 
 #news classification (usdrub - yes/no)
-STOP_WORDS = c("ax","i","you","edu","s","t","m","subject","can","lines","re","what",
-               "there","all","we","one","the","a","an","of","or","in","for","by","on",
-               "but","is","in","a","not","with","as","was","if","they","are","this","and","it","have",
-               "from","at","my","be","by","not","that","to","from","com","org","like","likes","so")
+STOP_WORDS = c(
+  "ax",
+  "i",
+  "you",
+  "edu",
+  "s",
+  "t",
+  "m",
+  "subject",
+  "can",
+  "lines",
+  "re",
+  "what",
+  "there",
+  "all",
+  "we",
+  "one",
+  "the",
+  "a",
+  "an",
+  "of",
+  "or",
+  "in",
+  "for",
+  "by",
+  "on",
+  "but",
+  "is",
+  "in",
+  "a",
+  "not",
+  "with",
+  "as",
+  "was",
+  "if",
+  "they",
+  "are",
+  "this",
+  "and",
+  "it",
+  "have",
+  "from",
+  "at",
+  "my",
+  "be",
+  "by",
+  "not",
+  "that",
+  "to",
+  "from",
+  "com",
+  "org",
+  "like",
+  "likes",
+  "so"
+)
 
 data2 <- read.csv(
   file = "c:/QRG/R/reuters/news_train.csv",
@@ -391,18 +436,18 @@ tokenized.lower <- h2o.tolower(words)
 tokenized.lengths <- h2o.nchar(tokenized.lower)
 tokenized.filtered <-
   tokenized.lower[is.na(tokenized.lengths) ||
-                    tokenized.lengths >= 2, ]
+                    tokenized.lengths >= 2,]
 # remove words that contain numbers
 tokenized.words <-
   tokenized.filtered[h2o.grep("[0-9]",
                               tokenized.filtered,
                               invert = TRUE,
-                              output.logical = TRUE), ]
+                              output.logical = TRUE),]
 
 # remove stop words
 words <-
   tokenized.words[is.na(tokenized.words) ||
-                    (!tokenized.words %in% STOP_WORDS), ]
+                    (!tokenized.words %in% STOP_WORDS),]
 #word2vec
 model.word2vec <-
   h2o.word2vec(words, sent_sample_rate = 0, epochs = 10)
@@ -412,7 +457,7 @@ valid <- !is.na(vecs$C1)
 
 #GBM
 data <-
-  h2o.cbind(as.factor(train.hex[valid, "Class"]), vecs[valid, ])
+  h2o.cbind(as.factor(train.hex[valid, "Class"]), vecs[valid,])
 
 data.split <- h2o.splitFrame(data, ratios = 0.95)
 gbm.model <- h2o.gbm(
@@ -422,39 +467,39 @@ gbm.model <- h2o.gbm(
   validation_frame = data.split[[2]]
 )
 
-#prediction! 
+#prediction!
 pred.hex <- as.h2o(news)
 words <- h2o.tokenize(as.character(pred.hex), "\\\\W+")
 tokenized.lower <- h2o.tolower(words)
 tokenized.lengths <- h2o.nchar(tokenized.lower)
 tokenized.filtered <-
   tokenized.lower[is.na(tokenized.lengths) ||
-                    tokenized.lengths >= 2, ]
+                    tokenized.lengths >= 2,]
 tokenized.words <-
   tokenized.filtered[h2o.grep("[0-9]",
                               tokenized.filtered,
                               invert = TRUE,
-                              output.logical = TRUE), ]
+                              output.logical = TRUE),]
 words <-
   tokenized.words[is.na(tokenized.words) ||
-                    (!tokenized.words %in% STOP_WORDS), ]
+                    (!tokenized.words %in% STOP_WORDS),]
 model.word2vec <-
   h2o.word2vec(words, sent_sample_rate = 0, epochs = 10)
 vecs <-
   h2o.transform(model.word2vec, words, aggregate_method = "AVERAGE")
 valid <- !is.na(vecs$C1)
 
-data_new <-vecs[valid, ]
+data_new <- vecs[valid,]
 data_new2 <- vecs
 
 #forecast for news (for dollars and others)
 pred_gbm <- h2o.predict(gbm.model, data_new2)
 pred_gbm
 
-news<-pred.hex[pred_gbm$predict=="yes",]
+news <- pred.hex[pred_gbm$predict == "yes", ]
 
 #transformation h2o.frame--->data.frame
-news<-as.data.frame(news)
+news <- as.data.frame(news)
 
 #merge datasets
 #data_news <-
@@ -469,11 +514,11 @@ data_news <- inner_join(news[1:5], data_usdrub)
 data_news <-
   filter(
     data_news,
-    data_news$Ticker == "RUBUTSTN=MCX"|
-      data_news$Ticker == "RUB="|
-      data_news$Ticker == "OFCB.MM"|
+    data_news$Ticker == "RUBUTSTN=MCX" |
+      data_news$Ticker == "RUB=" |
+      data_news$Ticker == "OFCB.MM" |
       data_news$Ticker == "RUBUTSTN=MCX"
-      )
+  )
 
 usdrub_sep_17 <- x["2017-09-01/2017-09-30"]
 usdrub_oct_17 <- x["2017-10-01/2017-10-31"]
@@ -489,8 +534,8 @@ usdrub_mar_18 <- x["2018-03-01/2018-03-31"]
 #f <- MC_tokenizer(e)
 
 #r-sentiment for each days
-start <- as.Date("2017-09-01",format="%Y-%m-%d")
-end   <- as.Date("2018-03-31",format="%Y-%m-%d")
+start <- as.Date("2017-09-01", format = "%Y-%m-%d")
+end   <- as.Date("2018-03-31", format = "%Y-%m-%d")
 
 theDate <- start
 
@@ -506,7 +551,7 @@ h <- tolower(h)
 #sent <- calculate_total_presence_sentiment(h)
 
 #инициализация сентимента и цены для первой даты
-news_frame <- data.frame(t(sent[2, ]), g$Date[1], g$USDRUB_TOM[1])
+news_frame <- data.frame(t(sent[2,]), g$Date[1], g$USDRUB_TOM[1])
 colnames(news_frame) <-
   c("X1", "X2", "X3", "X4", "X5", "X6", "Date", "Price")
 news_frame_all <- rbind(news_frame)
@@ -528,7 +573,8 @@ while (theDate <= end)
   {
     sent <- calculate_total_presence_sentiment(h)
     
-    news_frame <- data.frame(t(sent[2,]), g$Date[1], g$USDRUB_TOM[1])
+    news_frame <-
+      data.frame(t(sent[2, ]), g$Date[1], g$USDRUB_TOM[1])
     colnames(news_frame) <-
       c("X1", "X2", "X3", "X4", "X5", "X6", "Date", "Price")
     news_frame_all <- rbind(news_frame, news_frame_all)
@@ -538,11 +584,11 @@ while (theDate <= end)
 }
 
 #news_frame_all<-na.omit(news_frame_all)
-Y<-diff(as.numeric(news_frame_all$Price))
-X1<-as.numeric(news_frame_all$X1[2:nrow(news_frame_all)])
-X2<-as.numeric(news_frame_all$X2[2:nrow(news_frame_all)])
-X3<-as.numeric(news_frame_all$X3[2:nrow(news_frame_all)])
-X4<-as.numeric(news_frame_all$X4[2:nrow(news_frame_all)])
-X5<-as.numeric(news_frame_all$X5[2:nrow(news_frame_all)])
-model.sent<-lm(Y~X2+X3+X4+X5)
+Y <- diff(as.numeric(news_frame_all$Price))
+X1 <- as.numeric(news_frame_all$X1[2:nrow(news_frame_all)])
+X2 <- as.numeric(news_frame_all$X2[2:nrow(news_frame_all)])
+X3 <- as.numeric(news_frame_all$X3[2:nrow(news_frame_all)])
+X4 <- as.numeric(news_frame_all$X4[2:nrow(news_frame_all)])
+X5 <- as.numeric(news_frame_all$X5[2:nrow(news_frame_all)])
+model.sent <- lm(Y ~ X2 + X3 + X4 + X5)
 summary(model.sent)
