@@ -465,6 +465,7 @@ data_usdrub$Date <- as.Date(data_usdrub$Date, format = "%Y-%m-%d")
 data_news <- inner_join(news[1:5], data_usdrub)
 
 #filter news by ticker
+#второй датасет - по тикеру, первый датасет отобран через wodr2vec и GBM
 data_news <-
   filter(
     data_news,
@@ -493,7 +494,7 @@ end   <- as.Date("2018-03-31",format="%Y-%m-%d")
 
 theDate <- start
 
-g <- filter(data_news, data_news$Date == "2017-09-01")
+g <- data_news#filter(data_news, data_news$Date == "2017-09-01")
 h <-  g$News
 #pre-processing text-corpus
 h <- removeNumbers(h)
@@ -501,14 +502,19 @@ h <- removePunctuation(h)
 h <- removeWords(h, stopwords("english"))
 #stemming in a text document using Porter`s algorithm
 h <- stemDocument(h)
-sent <- calculate_total_presence_sentiment(h)
+h <- tolower(h)
+#sent <- calculate_total_presence_sentiment(h)
+
+#инициализация сентимента и цены для первой даты
 news_frame <- data.frame(t(sent[2, ]), g$Date[1], g$USDRUB_TOM[1])
 colnames(news_frame) <-
   c("X1", "X2", "X3", "X4", "X5", "X6", "Date", "Price")
 news_frame_all <- rbind(news_frame)
 
+#запуск объединения цены и сентимента по всем датам
 while (theDate <= end)
 {
+  #theDate = "2017-09-01"
   g <- filter(data_news, data_news$Date == theDate)
   h <-  g$News
   #pre-processing text-corpus
@@ -531,5 +537,12 @@ while (theDate <= end)
   theDate <- theDate + 1
 }
 
-news_frame_all<-na.omit(news_frame_all)
-news_frame_all
+#news_frame_all<-na.omit(news_frame_all)
+Y<-diff(as.numeric(news_frame_all$Price))
+X1<-as.numeric(news_frame_all$X1[2:nrow(news_frame_all)])
+X2<-as.numeric(news_frame_all$X2[2:nrow(news_frame_all)])
+X3<-as.numeric(news_frame_all$X3[2:nrow(news_frame_all)])
+X4<-as.numeric(news_frame_all$X4[2:nrow(news_frame_all)])
+X5<-as.numeric(news_frame_all$X5[2:nrow(news_frame_all)])
+model.sent<-lm(Y~X2+X3+X4+X5)
+summary(model.sent)
