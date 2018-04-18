@@ -90,11 +90,19 @@ ret1 <- as.numeric(na.omit(diff(usdrub1)))
 ret1_lag5 <- as.numeric(na.omit(diff(lag(usdrub1, 5))))
 ret1_lag30 <- as.numeric(na.omit(diff(lag(usdrub1, 30))))
 ret2 <- as.numeric(na.omit(diff(usdrub2)))
+ret2_lag5 <- as.numeric(na.omit(diff(lag(usdrub2, 5))))
+ret2_lag30 <- as.numeric(na.omit(diff(lag(usdrub2, 30))))
 ret3 <- as.numeric(na.omit(diff(usdrub3)))
+ret3_lag5 <- as.numeric(na.omit(diff(lag(usdrub3, 5))))
+ret3_lag30 <- as.numeric(na.omit(diff(lag(usdrub3, 30))))
 ret4 <- as.numeric(na.omit(diff(log(usdrub4))))
+ret4_lag5 <- as.numeric(na.omit(diff(lag(usdrub4, 5))))
+ret4_lag30 <- as.numeric(na.omit(diff(lag(usdrub4, 30))))
 ret5 <- as.numeric(na.omit(diff(usdrub5)))
-data <- data.frame(ret1[31:length(ret1)],
-                   ret1_lag5[26:length(ret1_lag5)], ret1_lag30)
+ret5_lag5 <- as.numeric(na.omit(diff(lag(usdrub5, 5))))
+ret5_lag30 <- as.numeric(na.omit(diff(lag(usdrub5, 30))))
+data <- data.frame(ret5[31:length(ret5)],
+                   ret5_lag5[26:length(ret5_lag5)], ret5_lag30)
 colnames(data) <- c("lag0", "lag5", "lag30")
 model.hex <- as.h2o(data)
 cluster <- h2o.kmeans(
@@ -122,7 +130,7 @@ model.anon.per.feature <- h2o.anomaly(model.dl, model.hex,
 model.anon.per.feature
 
 #regression lm, glm
-#read feautures
+#read features
 data <- read.csv(
   file = "c:/QRG/R/regression/regr_dataset.csv",
   header = TRUE,
@@ -179,20 +187,37 @@ regr <-
     regr$XTEXVA01RUM667N,
     regr$XTEXVA01RUM667S
   )
+
+par(mfrow = c(2, 1))
+plot.ts(regr[,2],type="l")
+plot.ts(regr[,5],type="l")
+
 #correlation matrix
-regr_cor <- regr[2:length(regr)]
+regr_cor <- regr[50:length(regr_cor),2:46]
 cor(regr_cor)
 x1.Date <- as.Date(regr$regr.DATE)
 regr <- xts(regr[2:length(regr)], x1.Date)
 
+#inflation
+data <- read.csv(
+  file = "c:/QRG/R/regression/CPI2.csv",
+  header = TRUE,
+  sep = ";",
+  dec = ","
+)
+#режим таргетирования инфляции ЦБ РФ
+cor(na.omit(data[274:313,2:3]))
+
+
 #read price
 price <- regr$regr.CCUSMA02RUM618N
 
+
 #fit regression
-x1 <- regr[, 2]
-x2 <- regr[, 3]
-x3 <- regr[, 4]
-y <- price
+x1 <- diff(data[, 3])
+x2 <- diff(data[, 4])
+x3 <- diff(data[, 5])
+y <- diff(data$CCUSMA02RUM618N)
 model.lm <- lm(y ~ x1 + x2 + x3)
 summary(model.lm)
 dwtest(model.lm)
@@ -496,6 +521,7 @@ data_new2 <- vecs
 pred_gbm <- h2o.predict(gbm.model, data_new2)
 pred_gbm
 
+#news_predict<-cbind(pred.hex$News,as.data.frame(pred_gbm$predict))
 news <- pred.hex[pred_gbm$predict == "yes", ]
 
 #transformation h2o.frame--->data.frame
